@@ -1,0 +1,126 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Wallpaper from "../components/Wallpaper.astro";
+import PianoPlayer from "../components/PianoPlayer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero">
+				<h1>Hello, I'm [Your Name]</h1>
+				<p class="subtitle">
+					Developer | Pianist | Badminton Enthusiast
+				</p>
+
+				<Wallpaper />
+			</section>
+
+			<section class="about" id="about">
+				<h2>About Me</h2>
+				<p>
+					Write your personal introduction here. Share your
+					background, skills, and what makes you unique as a
+					developer.
+				</p>
+			</section>
+
+			<section class="skills" id="skills">
+				<h2>My Skills</h2>
+				<div class="skills-container">
+					<div class="skill-card">
+						<h3>Piano</h3>
+						<p>Describe your piano experience</p>
+						<PianoPlayer />
+					</div>
+					<div class="skill-card">
+						<h3>Badminton</h3>
+						<p>Share your badminton skills and achievements</p>
+					</div>
+				</div>
+			</section>
+
+			<section class="projects" id="projects">
+				<h2>My Projects</h2>
+				<div class="project-grid">
+					<!-- Add your projects here -->
+					<div class="project-card">
+						<h3>Project Name</h3>
+						<p>Project description goes here</p>
+						<a href="#" class="btn">View Project</a>
+					</div>
+				</div>
+			</section>
+
+			<section class="contact" id="contact">
+				<h2>Contact Me</h2>
+				<p>You can reach me at: your.email@example.com</p>
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		margin: 0 auto;
+		width: 100%;
+		max-width: 1200px;
+		padding: 0 1rem;
+	}
+
+	section {
+		margin: 4rem 0;
+		padding: 2rem 0;
+	}
+
+	.hero {
+		text-align: center;
+		margin-top: 2rem;
+	}
+
+	.hero h1 {
+		font-size: 2.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.subtitle {
+		font-size: 1.25rem;
+		color: rgb(var(--gray));
+		margin-bottom: 2rem;
+	}
+
+	.skills-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 2rem;
+	}
+
+	.skill-card {
+		padding: 1.5rem;
+		border-radius: 8px;
+		background-color: #f9f9f9;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.project-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 2rem;
+	}
+
+	.project-card {
+		padding: 1.5rem;
+		border-radius: 8px;
+		background-color: #f9f9f9;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+</style>

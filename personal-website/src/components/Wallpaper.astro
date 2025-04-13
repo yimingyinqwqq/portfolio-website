@@ -1,0 +1,106 @@
+---
+// Wallpaper toggling functionality
+const wallpapers = [
+  {
+    id: 'default',
+    name: 'Piano & Badminton',
+  },
+  {
+    id: 'alternate',
+    name: 'Alternate Theme',
+  }
+];
+---
+
+<div class="wallpaper-container">
+  <div class="wallpaper" id="wallpaper">
+    <div class="left-side">
+      <img src="/images/piano-line-art.svg" alt="Piano" />
+    </div>
+    <div class="right-side">
+      <img src="/images/badminton-rackets-line-art.svg" alt="Badminton Rackets" />
+    </div>
+  </div>
+  <div class="wallpaper-controls">
+    <button id="toggle-wallpaper">Change Wallpaper</button>
+  </div>
+</div>
+
+<script>
+  // Client-side script to toggle wallpapers
+  const wallpaperEl = document.getElementById('wallpaper');
+  const toggleBtn = document.getElementById('toggle-wallpaper');
+  let currentWallpaper = 'default';
+
+  if (toggleBtn && wallpaperEl) {
+    toggleBtn.addEventListener('click', () => {
+      if (currentWallpaper === 'default') {
+        wallpaperEl.classList.add('alternate');
+        currentWallpaper = 'alternate';
+      } else {
+        wallpaperEl.classList.remove('alternate');
+        currentWallpaper = 'default';
+      }
+    });
+  }
+</script>
+
+<style>
+  .wallpaper-container {
+    position: relative;
+    width: 100%;
+    margin: 2rem 0;
+  }
+  
+  .wallpaper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50vh;
+    transition: background-color 0.5s ease;
+  }
+  
+  .left-side, .right-side {
+    width: 45%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .left-side img, .right-side img {
+    max-width: 100%;
+    max-height: 300px;
+    opacity: 0.8;
+    transition: transform 0.5s ease;
+  }
+
+  .wallpaper.alternate {
+    background-color: #f0f0f0;
+  }
+  
+  .wallpaper.alternate .left-side img {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  
+  .wallpaper.alternate .right-side img {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .wallpaper-controls {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  button {
+    padding: 0.5rem 1rem;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #555;
+  }
+</style>
