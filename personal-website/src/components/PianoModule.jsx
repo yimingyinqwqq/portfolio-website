@@ -3,9 +3,24 @@ import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
 
-// Set the note range from "do" (c4) to "mi" (E5).
-const firstNote = MidiNumbers.fromNote("c4");
+// Set the note range from "la" (a3) to "mi" (E5).
+const firstNote = MidiNumbers.fromNote("a3");
 const lastNote = MidiNumbers.fromNote("e5");
+
+const HOME_ROW = [
+  { natural: 'a', flat: 'q', sharp: 'w' },
+  { natural: 's', flat: 'w', sharp: 'e' },
+  { natural: 'd', flat: 'e', sharp: 'r' },
+  { natural: 'f', flat: 'r', sharp: 't' },
+  { natural: 'g', flat: 't', sharp: 'y' },
+  { natural: 'h', flat: 'y', sharp: 'u' },
+  { natural: 'j', flat: 'u', sharp: 'i' },
+  { natural: 'k', flat: 'i', sharp: 'o' },
+  { natural: 'l', flat: 'o', sharp: 'p' },
+  { natural: ';', flat: 'p', sharp: '[' },
+  { natural: "'", flat: '[', sharp: ']' },
+  { natural: "Enter", flat: ']', sharp: '\\' },
+];
 
 export default function PianoModule() {
   const [synth, setSynth] = useState(null);
@@ -18,7 +33,7 @@ export default function PianoModule() {
     const newSynth = new Tone.PolySynth(Tone.Synth, {
       envelope: {
         attack: 0.03,   // Quick attack
-        decay: 3.0,     // Slow decay for gradual attenuation
+        decay: 100.0,     // Slow decay for gradual attenuation
         sustain: 0,     // No sustain – sound fades out naturally
         release: 1.5,   // Moderate release upon key up
       },
@@ -74,14 +89,14 @@ export default function PianoModule() {
   const keyboardShortcuts = KeyboardShortcuts.create({
     firstNote,
     lastNote,
-    keyboardConfig: KeyboardShortcuts.HOME_ROW,
+    keyboardConfig: HOME_ROW,
   });
 
   // Render note labels showing the keyboard shortcut if available.
   // Instead of returning an empty string when not showing, we always return the label inside
   // a span. Its opacity will transition based on the showLabels state.
   const renderNoteLabel = ({ keyboardShortcut, midiNumber, isAccidental }) => {
-    const label = keyboardShortcut ? keyboardShortcut.toUpperCase() : "";
+    const label = keyboardShortcut ? (keyboardShortcut == "Enter" ? "↵" : keyboardShortcut.toUpperCase()) : "";
     return (
       <span
         style={{
