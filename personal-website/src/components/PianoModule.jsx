@@ -3,37 +3,39 @@ import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
 
-// Set the note range from "la" to "mi": starting at A3 and ending at E5.
-const firstNote = MidiNumbers.fromNote("a3");
+// Set the note range from "do" (c4) to "mi" (E5).
+const firstNote = MidiNumbers.fromNote("c4");
 const lastNote = MidiNumbers.fromNote("e5");
 
 export default function PianoModule() {
   const [synth, setSynth] = useState(null);
-  const [isToneInitialized, setToneInitialized] = useState(false);
 
   useEffect(() => {
-    async function initTone() {
-      try {
-        await Tone.start();
-        // Create a polyphonic synth (using Tone.js) routed to the destination.
-        const newSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-        setSynth(newSynth);
-        setToneInitialized(true);
-      } catch (error) {
-        console.error("Tone.js failed to initialize", error);
-      }
-    }
-    initTone();
+    // Create the polyphonic synth immediately, but do not start the AudioContext.
+    const newSynth = new Tone.PolySynth(Tone.Synth, {
+      envelope: {
+        attack: 0.03,   // Quick attack
+        decay: 3.0,     // Slow decay for gradual attenuation
+        sustain: 0,     // No sustain – sound fades out naturally
+        release: 1.5,   // Moderate release upon key up
+      },
+    }).toDestination();
+    setSynth(newSynth);
   }, []);
 
-  // Play note given its midi number.
-  const playNote = (midiNumber) => {
+  // When a key is pressed, resume the AudioContext if needed and then trigger the note.
+  const playNote = async (midiNumber) => {
     if (!synth) return;
+    // Resume the audio context if it is not already running.
+    const context = Tone.getContext();
+    if (context.state !== "running") {
+      await context.resume();
+    }
     const note = Tone.Frequency(midiNumber, "midi").toNote();
     synth.triggerAttack(note);
   };
 
-  // Stop the note.
+  // When the key is released, trigger the release.
   const stopNote = (midiNumber) => {
     if (!synth) return;
     const note = Tone.Frequency(midiNumber, "midi").toNote();
@@ -46,8 +48,16 @@ export default function PianoModule() {
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
 
+  // An optional onMouseDown at the container level as an extra guarantee that the AudioContext is resumed.
+  const handleContainerMouseDown = async () => {
+    const context = Tone.getContext();
+    if (context.state !== "running") {
+      await context.resume();
+    }
+  };
+
   return (
-    <div style={styles.container}>
+    <div style={styles.container} onMouseDown={handleContainerMouseDown}>
       <h2 style={styles.heading}>My Piano Skills</h2>
       <Piano
         noteRange={{ first: firstNote, last: lastNote }}
