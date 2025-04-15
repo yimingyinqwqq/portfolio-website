@@ -3,37 +3,43 @@ import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
 
-// Define note range: from C3 to E5 (adjust to your taste)
-const firstNote = MidiNumbers.fromNote("c3");
+// Set the note range from "la" to "mi": starting at A3 and ending at E5.
+const firstNote = MidiNumbers.fromNote("a3");
 const lastNote = MidiNumbers.fromNote("e5");
 
 export default function PianoModule() {
-  // Initialize a polyphonic synth using Tone.js
   const [synth, setSynth] = useState(null);
+  const [isToneInitialized, setToneInitialized] = useState(false);
 
   useEffect(() => {
-    // Setup the synth when the component mounts
-    const newSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-    setSynth(newSynth);
+    async function initTone() {
+      try {
+        await Tone.start();
+        // Create a polyphonic synth (using Tone.js) routed to the destination.
+        const newSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+        setSynth(newSynth);
+        setToneInitialized(true);
+      } catch (error) {
+        console.error("Tone.js failed to initialize", error);
+      }
+    }
+    initTone();
   }, []);
 
-  // When a key is pressed, play the note
+  // Play note given its midi number.
   const playNote = (midiNumber) => {
-    if (synth) {
-      const note = Tone.Frequency(midiNumber, "midi").toNote();
-      synth.triggerAttack(note);
-    }
+    if (!synth) return;
+    const note = Tone.Frequency(midiNumber, "midi").toNote();
+    synth.triggerAttack(note);
   };
 
-  // When a key is released, stop the note
+  // Stop the note.
   const stopNote = (midiNumber) => {
-    if (synth) {
-      const note = Tone.Frequency(midiNumber, "midi").toNote();
-      synth.triggerRelease(note);
-    }
+    if (!synth) return;
+    const note = Tone.Frequency(midiNumber, "midi").toNote();
+    synth.triggerRelease(note);
   };
 
-  // Create keyboard shortcuts (e.g. home row)
   const keyboardShortcuts = KeyboardShortcuts.create({
     firstNote,
     lastNote,
@@ -47,7 +53,7 @@ export default function PianoModule() {
         noteRange={{ first: firstNote, last: lastNote }}
         playNote={playNote}
         stopNote={stopNote}
-        width={600}
+        width={475}
         keyboardShortcuts={keyboardShortcuts}
       />
     </div>
