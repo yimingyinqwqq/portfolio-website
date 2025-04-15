@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
@@ -11,6 +11,7 @@ export default function PianoModule() {
   const [synth, setSynth] = useState(null);
   // State for whether to show note labels (keyboard keys) or not.
   const [showLabels, setShowLabels] = useState(true);
+  const noteClearTimer = useRef(null);
 
   useEffect(() => {
     // Create the polyphonic synth immediately, but do not start the AudioContext.
@@ -25,12 +26,15 @@ export default function PianoModule() {
     setSynth(newSynth);
   }, []);
 
-  // Hide note labels 8 seconds after initialization.
+  // Hide note labels 5 seconds after initialization.
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowLabels(false);
+      if (noteClearTimer.current) {
+        setShowLabels(false);
+      }
     }, 5000);
-    return () => clearTimeout(timer);
+    noteClearTimer.current = timer;
+    return () => { clearTimeout(timer) };
   }, []);
 
   // Listen for "h" key to toggle note labels.
@@ -38,8 +42,9 @@ export default function PianoModule() {
     const handleKeyDown = (event) => {
       // Prevent repeated toggling if key is held down.
       if (event.repeat) return;
-      if (event.key === "h" || event.key === "H") {
+      if (event.key === "1") {
         setShowLabels((prev) => !prev);
+        noteClearTimer.current = null;
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -73,15 +78,25 @@ export default function PianoModule() {
   });
 
   // Render note labels showing the keyboard shortcut if available.
-  // If showLabels is false, then return an empty string.
-  // Now, return a span that styles the label: white keys use color "#888", accidental keys "#f8e8d5".
+  // Instead of returning an empty string when not showing, we always return the label inside
+  // a span. Its opacity will transition based on the showLabels state.
   const renderNoteLabel = ({ keyboardShortcut, midiNumber, isAccidental }) => {
-    if (!showLabels) return "";
-    return keyboardShortcut ? (
-      <span style={{ color: isAccidental ? "#f8e8d5" : "#888" }}>
-        {keyboardShortcut.toUpperCase()}
+    const label = keyboardShortcut ? keyboardShortcut.toUpperCase() : "";
+    return (
+      <span
+        style={{
+          color: isAccidental ? "#f8e8d5" : "#888",
+          opacity: showLabels ? 1 : 0,
+          transition: "opacity 1s ease",
+          // Allow the span to take up space even when invisible
+          display: "inline-block",
+          width: "100%",
+          textAlign: "center",
+        }}
+      >
+        {label}
       </span>
-    ) : "";
+    );
   };
 
   // An optional onMouseDown at the container level as an extra guarantee that the AudioContext is resumed.
@@ -94,7 +109,7 @@ export default function PianoModule() {
 
   return (
     <div style={styles.container} onMouseDown={handleContainerMouseDown}>
-      <h2 style={styles.heading}>My Piano Skills</h2>
+      <h2 style={styles.heading}>Piano Playground</h2>
       <Piano
         noteRange={{ first: firstNote, last: lastNote }}
         playNote={playNote}
