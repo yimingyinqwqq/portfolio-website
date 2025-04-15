@@ -9,6 +9,8 @@ const lastNote = MidiNumbers.fromNote("e5");
 
 export default function PianoModule() {
   const [synth, setSynth] = useState(null);
+  // State for whether to show note labels (keyboard keys) or not.
+  const [showLabels, setShowLabels] = useState(true);
 
   useEffect(() => {
     // Create the polyphonic synth immediately, but do not start the AudioContext.
@@ -23,6 +25,27 @@ export default function PianoModule() {
     setSynth(newSynth);
   }, []);
 
+  // Hide note labels 8 seconds after initialization.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLabels(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Listen for "h" key to toggle note labels.
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Prevent repeated toggling if key is held down.
+      if (event.repeat) return;
+      if (event.key === "h" || event.key === "H") {
+        setShowLabels((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // When a key is pressed, resume the AudioContext if needed and then trigger the note.
   const playNote = async (midiNumber) => {
     if (!synth) return;
@@ -32,6 +55,7 @@ export default function PianoModule() {
       await context.resume();
     }
     const note = Tone.Frequency(midiNumber, "midi").toNote();
+    // The note will start at full volume and decay according to the envelope above.
     synth.triggerAttack(note);
   };
 
@@ -47,6 +71,18 @@ export default function PianoModule() {
     lastNote,
     keyboardConfig: KeyboardShortcuts.HOME_ROW,
   });
+
+  // Render note labels showing the keyboard shortcut if available.
+  // If showLabels is false, then return an empty string.
+  // Now, return a span that styles the label: white keys use color "#888", accidental keys "#f8e8d5".
+  const renderNoteLabel = ({ keyboardShortcut, midiNumber, isAccidental }) => {
+    if (!showLabels) return "";
+    return keyboardShortcut ? (
+      <span style={{ color: isAccidental ? "#f8e8d5" : "#888" }}>
+        {keyboardShortcut.toUpperCase()}
+      </span>
+    ) : "";
+  };
 
   // An optional onMouseDown at the container level as an extra guarantee that the AudioContext is resumed.
   const handleContainerMouseDown = async () => {
@@ -65,6 +101,7 @@ export default function PianoModule() {
         stopNote={stopNote}
         width={475}
         keyboardShortcuts={keyboardShortcuts}
+        renderNoteLabel={renderNoteLabel}
       />
     </div>
   );
@@ -76,6 +113,8 @@ const styles = {
     background: "#ffffff",
     padding: "2rem",
     fontFamily: "'Press Start 2P', 'Courier New', monospace",
+    fontSize: "12px",
+    color: "#f8e8d5", // container default color remains unchanged
   },
   heading: {
     marginBottom: "1rem",
