@@ -1,8 +1,6 @@
 ---
-// Import the global.css file here so that it is included on
-// all pages through the use of the <BaseHead /> component.
-import '../styles/global.css';
-import { SITE_TITLE } from '../consts';
+import "../styles/global.css";
+import { SITE_TITLE } from "../consts";
 
 interface Props {
 	title: string;
@@ -11,8 +9,7 @@ interface Props {
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-
-const { title, description, image = '/blog-placeholder-1.jpg' } = Astro.props;
+const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 ---
 
 <!-- Global Metadata -->
@@ -24,14 +21,29 @@ const { title, description, image = '/blog-placeholder-1.jpg' } = Astro.props;
 	rel="alternate"
 	type="application/rss+xml"
 	title={SITE_TITLE}
-	href={new URL('rss.xml', Astro.site)}
+	href={new URL("rss.xml", Astro.site)}
 />
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link
+	href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+	rel="stylesheet"
+/>
 <meta name="generator" content={Astro.generator} />
 
 <!-- Font preloads -->
-<link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
-<link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin />
+<link
+	rel="preload"
+	href="/fonts/atkinson-regular.woff"
+	as="font"
+	type="font/woff"
+	crossorigin
+/>
+<link
+	rel="preload"
+	href="/fonts/atkinson-bold.woff"
+	as="font"
+	type="font/woff"
+	crossorigin
+/>
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
@@ -54,3 +66,69 @@ const { title, description, image = '/blog-placeholder-1.jpg' } = Astro.props;
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+<!-- Add PixiJS for better rendering (optional) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/6.5.2/browser/pixi.min.js"></script>
+
+<!-- Add pixel art icons from IconScout -->
+<link
+	rel="stylesheet"
+	href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+/>
+
+<!-- Add custom pixel art icons with updated pure black icons -->
+<style>
+	/* Use custom pixel art SVG icons instead of emojis */
+	.record-icon {
+		background-image: url("https://api.iconify.design/mdi:record-circle-outline.svg?color=%23000");
+		background-repeat: no-repeat;
+		background-position: center;
+		width: 24px;
+		height: 24px;
+		display: block;
+	}
+
+	.play-icon {
+		background-image: url("https://api.iconify.design/mdi:play.svg?color=%23000");
+		background-repeat: no-repeat;
+		background-position: center;
+		width: 24px;
+		height: 24px;
+		display: block;
+	}
+
+	.sustain-icon {
+		background-image: url("https://api.iconify.design/mdi:music-note-eighth.svg?color=%23000");
+		background-repeat: no-repeat;
+		background-position: center;
+		width: 24px;
+		height: 24px;
+		display: block;
+	}
+
+	.piano-icon {
+		background-image: url("https://api.iconify.design/mdi:piano.svg?color=%23000");
+		background-repeat: no-repeat;
+		background-position: center;
+		width: 24px;
+		height: 24px;
+		display: block;
+	}
+</style>
+
+<!-- Replace emoji icons with SVG icons -->
+<button id="record-button" class="icon-button" title="Record">
+	<span class="record-icon"></span>
+</button>
+
+<button id="play-recording" class="icon-button" title="Play Recording" disabled>
+	<span class="play-icon"></span>
+</button>
+
+<button id="sustain-button" class="icon-button" title="Sustain: OFF">
+	<span class="sustain-icon"></span>
+</button>
+
+<button class="icon-button" title="Change Instrument">
+	<span class="piano-icon"></span>
+</button>
