@@ -68,7 +68,9 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
 
 <!-- Add PixiJS for better rendering (optional) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/6.5.2/browser/pixi.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/6.5.2/browser/pixi.min.js"
+></script>
 
 <!-- Add pixel art icons from IconScout -->
 <link
@@ -76,7 +78,7 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 	href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
 />
 
-<!-- Add custom pixel art icons with updated pure black icons -->
+<!-- Add custom pixel art icons with updated pure black icons
 <style>
 	/* Use custom pixel art SVG icons instead of emojis */
 	.record-icon {
@@ -114,21 +116,10 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 		height: 24px;
 		display: block;
 	}
-</style>
+</style> -->
 
-<!-- Replace emoji icons with SVG icons -->
-<button id="record-button" class="icon-button" title="Record">
-	<span class="record-icon"></span>
-</button>
-
-<button id="play-recording" class="icon-button" title="Play Recording" disabled>
-	<span class="play-icon"></span>
-</button>
-
-<button id="sustain-button" class="icon-button" title="Sustain: OFF">
-	<span class="sustain-icon"></span>
-</button>
-
-<button class="icon-button" title="Change Instrument">
-	<span class="piano-icon"></span>
-</button>
+<script>
+	// Immediately set the theme to avoid a flash of the wrong theme.
+	const savedTheme = localStorage.getItem("theme") || "light";
+	document.documentElement.setAttribute("data-theme", savedTheme);
+</script>
