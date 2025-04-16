@@ -3,7 +3,6 @@ import { Piano, KeyboardShortcuts, MidiNumbers } from "react-piano";
 import "react-piano/dist/styles.css";
 import * as Tone from "tone";
 
-// Set the note range from "la" (a3) to "mi" (E5).
 const firstNote = MidiNumbers.fromNote("a3");
 const lastNote = MidiNumbers.fromNote("e5");
 
@@ -24,24 +23,26 @@ const HOME_ROW = [
 
 export default function PianoModule() {
   const [synth, setSynth] = useState(null);
-  // State for whether to show note labels (keyboard keys) or not.
   const [showLabels, setShowLabels] = useState(true);
   const noteClearTimer = useRef(null);
 
+  // Initialize Sampler with real piano samples
   useEffect(() => {
-    // Create the polyphonic synth immediately, but do not start the AudioContext.
-    const newSynth = new Tone.PolySynth(Tone.Synth, {
-      envelope: {
-        attack: 0.03,   // Quick attack
-        decay: 100.0,     // Slow decay for gradual attenuation
-        sustain: 0,     // No sustain – sound fades out naturally
-        release: 1.5,   // Moderate release upon key up
+    const newSampler = new Tone.Sampler({
+      urls: {
+        C4: "C4.mp3",
+        "D#4": "Ds4.mp3",
+        "F#4": "Fs4.mp3",
+        A4: "A4.mp3",
       },
+      release: 1,
+      baseUrl: "https://tonejs.github.io/audio/salamander/",
     }).toDestination();
-    setSynth(newSynth);
+
+    setSynth(newSampler);
   }, []);
 
-  // Hide note labels 5 seconds after initialization.
+  // Hide note labels after 5s
   useEffect(() => {
     const timer = setTimeout(() => {
       if (noteClearTimer.current) {
@@ -49,13 +50,14 @@ export default function PianoModule() {
       }
     }, 5000);
     noteClearTimer.current = timer;
-    return () => { clearTimeout(timer) };
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
-  // Listen for "h" key to toggle note labels.
+  // Toggle labels with "1" key
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // Prevent repeated toggling if key is held down.
       if (event.repeat) return;
       if (event.key === "1") {
         setShowLabels((prev) => !prev);
@@ -66,44 +68,44 @@ export default function PianoModule() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // When a key is pressed, resume the AudioContext if needed and then trigger the note.
+  // Play note
   const playNote = async (midiNumber) => {
     if (!synth) return;
-    // Resume the audio context if it is not already running.
     const context = Tone.getContext();
     if (context.state !== "running") {
       await context.resume();
     }
     const note = Tone.Frequency(midiNumber, "midi").toNote();
-    // The note will start at full volume and decay according to the envelope above.
     synth.triggerAttack(note);
   };
 
-  // When the key is released, trigger the release.
+  // Stop note
   const stopNote = (midiNumber) => {
     if (!synth) return;
     const note = Tone.Frequency(midiNumber, "midi").toNote();
     synth.triggerRelease(note);
   };
 
+  // Create keyboard shortcuts
   const keyboardShortcuts = KeyboardShortcuts.create({
     firstNote,
     lastNote,
     keyboardConfig: HOME_ROW,
   });
 
-  // Render note labels showing the keyboard shortcut if available.
-  // Instead of returning an empty string when not showing, we always return the label inside
-  // a span. Its opacity will transition based on the showLabels state.
+  // Render the note label (opacity toggles)
   const renderNoteLabel = ({ keyboardShortcut, midiNumber, isAccidental }) => {
-    const label = keyboardShortcut ? (keyboardShortcut == "Enter" ? "↵" : keyboardShortcut.toUpperCase()) : "";
+    const label = keyboardShortcut
+      ? keyboardShortcut === "Enter"
+        ? "↵"
+        : keyboardShortcut.toUpperCase()
+      : "";
     return (
       <span
         style={{
           color: isAccidental ? "#f8e8d5" : "#888",
           opacity: showLabels ? 1 : 0,
           transition: "opacity 1s ease",
-          // Allow the span to take up space even when invisible
           display: "inline-block",
           width: "100%",
           textAlign: "center",
@@ -114,7 +116,7 @@ export default function PianoModule() {
     );
   };
 
-  // An optional onMouseDown at the container level as an extra guarantee that the AudioContext is resumed.
+  // Ensure AudioContext is resumed on mouse down
   const handleContainerMouseDown = async () => {
     const context = Tone.getContext();
     if (context.state !== "running") {
@@ -144,7 +146,7 @@ const styles = {
     padding: "2rem",
     fontFamily: "'Press Start 2P', 'Courier New', monospace",
     fontSize: "12px",
-    color: "#f8e8d5", // container default color remains unchanged
+    color: "#f8e8d5",
   },
   heading: {
     marginBottom: "1rem",
